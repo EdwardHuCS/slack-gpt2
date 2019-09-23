@@ -39,18 +39,19 @@ def parse_direct_mention(message_text):
 @slack.RTMClient.run_on(event='message')
 def handle(**payload):
     data = payload['data']
-    command = parse_bot_commands(data['message'])
-    if command is not None:
-        response = generate_unconditional_samples.sample_model(
-            nsamples=1,
-            length=min(3 * len(command), 300),
-            top_k=40,
-            command=command)
-        webclient = payload['web_client']
-        webclient.chat_postMessage(
-            channel=data['channel'],
-            text=f"{response[0]}",
-        )
+    if data.get('message'):
+        command = parse_bot_commands(data['message'])
+        if command is not None:
+            response = generate_unconditional_samples.sample_model(
+                nsamples=1,
+                length=min(3 * len(command), 300),
+                top_k=40,
+                command=command)
+            webclient = payload['web_client']
+            webclient.chat_postMessage(
+                channel=data['channel'],
+                text=f"{response[0]}",
+            )
 
 
 
